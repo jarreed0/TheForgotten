@@ -1,15 +1,14 @@
 #include "game.h"
 
 game::game() {
-	screen=SDL_SetVideoMode(SCREEN_WIDTH,SCREEN_HEIGHT,32,SDL_SWSURFACE);
-	fullscreen=0;
+	screen=SDL_SetVideoMode(SCREEN_WIDTH,SCREEN_HEIGHT,32,SDL_SWSURFACE | SDL_FULLSCREEN);
+	fullscreen=1;
 	SDL_WM_SetCaption("The Forgotten: Genesis", "The Forgotten: Genesis");
 	background=loadImage("bkg.png");
 	blocks=loadImage("blocks.png");
 	playerimg=loadImage("player.png");
 	loading=loadImage("loading.png");
 	wallimg=loadImage("wall.png");
-	bmenuimg=loadImage("benchmenu.png");
 	mobsimg=loadImage("mob.png");
 	running=true;
 	player1=new player(playerimg);
@@ -55,11 +54,10 @@ game::game() {
 	mouseDown=0;
 	width=500;
 	height=500;
-	for(int i=0; i<23; i++) {
-		inventory[i]=1;
-	}
-	itemon=0;
+	itemon=1;
 	digging=0;
+	holding=1;
+	erase=0;
 }
 
 game::~game() {
@@ -68,7 +66,6 @@ game::~game() {
 	SDL_FreeSurface(playerimg);
 	SDL_FreeSurface(loading);
 	SDL_FreeSurface(wallimg);
-	SDL_FreeSurface(bmenuimg);
 	SDL_FreeSurface(mobsimg);
 	SDL_Quit();
 }
@@ -112,18 +109,41 @@ SDL_Event event;
                                         	//save();
                                 			//running=false;
                                 			return;
-                                	case SDLK_1: if(itemon>22) { itemon++; } else { itemon=0; } break;
-                                	case SDLK_2: if(itemon>0) { itemon--; } else { itemon=22; } break;
-                                	case SDLK_3: if(itemon<999) { itemon=1000; } else if(itemon>1005) { itemon++; } else { itemon=1000; } break;
-                                	case SDLK_4: if(itemon<999) { itemon=1000; } else if(itemon>1001) { itemon--; } else { itemon=1005; } break;
-                                	case SDLK_LSHIFT: digging=1; break;
-                                	case SDLK_i:
-                                		for(int i=0; i<22; i++) {
-                                			std::cout << i << ": " << inventory[i] << std::endl;
+                                	case SDLK_1: holding=1; break;
+                                	case SDLK_2: holding=2; break;
+                                	case SDLK_5: if(erase) {erase=0;} else {erase=1;} break;
+                                	case SDLK_4:
+                                		if(holding==1) { 
+                                			if(itemon>21) {
+                                				itemon=1;
+                                			} else {
+                                				itemon++;
+                                			}
+                                		} else if(holding==2) { 
+                                			if(itemon>4) {
+                                				itemon=1;
+                                			} else {
+                                				itemon++;
+                                			}
                                 		}
-                                		std::cout << coord.x << "," << coord.y << std::endl;
                                 		break;
-                                	case SDLK_p: std::cout << coord.x << "," << coord.y << std::endl; break;
+                                	case SDLK_3:
+                                		if(holding==1) { 
+                                			if(itemon==1) {
+                                				itemon=22;
+                                			} else {
+                                				itemon--;
+                                			}
+                                		} else if(holding==2) { 
+                                			if(itemon==1) {
+                                				itemon=5;
+                                			} else {
+                                				itemon--;
+                                			}
+                                		}
+                                		break;
+                                	case SDLK_LSHIFT: digging=1; break;
+                                	case SDLK_i: std::cout << coord.x/25 << "," << coord.y/25 << std::endl; std::cout << itemon << std::endl; break;
                                 }
                                 break;
                         case SDL_KEYUP:
@@ -163,7 +183,7 @@ void game::loadMap(const char* filename) {
                                 return;                        
                         }
                         in >> current;
-                        if(current>=1 && current<=22) {
+                        if(current>=1 && current<=23) {
 							vec.push_back(current);
                         }else{
                         	vec.push_back(0);
@@ -199,7 +219,7 @@ void game::loadWall(const char* filename) {
                                 return;                        
                         }
                         in >> current;
-                        if(current>=1 && current<=22) {
+                        if(current>=1 && current<=23) {
 							vec.push_back(current);
                         }else{
                         	vec.push_back(0);
@@ -246,18 +266,49 @@ void game::showMap() {
 	int end=(coord.x+coord.w+(TILE_SIZE-(coord.x+coord.w)%TILE_SIZE))/TILE_SIZE;
 	if (start<0) start=0;
 	if (end>map[0].size()) end=map[0].size();
-	for (int i=0;i<map.size();i++)
-		for (int j=start;j<end;j++)
+	for (int i=0;i<map.size();i++) {
+		for (int j=start;j<end;j++) {
 			if (map[i][j]!=nothing) {
 				SDL_Rect blockrect = {(map[i][j]-1)*TILE_SIZE,0,TILE_SIZE,TILE_SIZE};
 				SDL_Rect destrect = {j*TILE_SIZE-coord.x,i*TILE_SIZE-coord.y};
 				SDL_BlitSurface(blocks,&blockrect,screen,&destrect);
-				if(map[i][j]==water || map[i][j]==nothing || map[i][j]==flower || map[i][j]==wood || map[i][j]==torch || map[i][j]==post || map[i][j]==leaf || map[i][j]==workbench || map[i][j]==chickenegg) {
+				if(map[i][j]==water || map[i][j]==nothing || map[i][j]==flower || map[i][j]==wood || map[i][j]==torch || map[i][j]==post || map[i][j]==leaf || map[i][j]==workbench || map[i][j]==chickenegg || map[i][j]==cactus) {
 					test2rect.push_back(destrect);
 				} else {
 					testrect.push_back(destrect);
 				}
 			}
+			if(map[i][j]==dirt || map[i][j]==grass) {
+        		if(map[i-1][j]==nothing || map[i-1][j]==flower || map[i-1][j]==wood || map[i-1][j]==post || map[i-1][j]==chickenegg) {
+        			map[i][j]=grass;
+        		} else {
+        			map[i][j]=dirt;
+        		}
+        	}
+        	if(map[i][j]==wood) {
+        		if(map[i+1][j]==nothing || map[i+1][j]==torch) {
+        			int w=1;
+        			for(int h=0; h<w; h++) {
+        				if(map[i-h][j]==wood) {
+        					j++;
+        					map[i-h][j]=nothing;
+        				}
+        			}
+        		}
+        	}
+        	if(map[i][j]==chickenegg) {
+		   		int randhatch = random() % 100;
+		   		if(randhatch==0 && mobvec.size()<10) {
+		   			mobvec.push_back(new mobs(mobsimg, 50, 50, j*25, i*25, "chicken"));
+		   			map[i][j]=nothing;
+		   		}
+		   		if(map[i+1][j]==nothing) {
+		   			map[i][j]=nothing;
+		   			map[i+1][j]=chickenegg;
+		   		}
+        	}
+        }
+    }
 	colrect=testrect;
 	waterrect=test2rect;
 }
@@ -309,10 +360,10 @@ void game::start() {
 		if(digging) {
 			int dX = ((SCREEN_WIDTH/2)+coord.x)/TILE_SIZE;
    			int dY = ((SCREEN_HEIGHT/2)+coord.y)/TILE_SIZE;
-			if(dir[0]) { map[dY-1][dX]=map[dY-2][dX-1]=nothing;
-			} else if(dir[1]) { map[dY-1][dX]=map[dY-2][dX+1]=nothing; }
-			if(dir[2]) {  map[dY-2][dX]=map[dY-2][dX-1]=nothing;
-			} else if(lastdir[3]) { map[dY][dX]=map[dY][dX-1]=nothing; }
+			if(dir[0]) { map[dY-1][dX]=map[dY-2][dX-1]=nothing; }
+			if(dir[1]) { map[dY-1][dX]=map[dY-2][dX+1]=nothing; }
+			if(dir[2]) { map[dY-2][dX]=map[dY-2][dX-1]=nothing; }
+			if(dir[3]) { map[dY][dX]=map[dY][dX-1]=nothing; }
 		}
 
 		for(int i=0;i<colrect.size();i++) {
@@ -332,68 +383,45 @@ void game::start() {
    		if(mouseDown) {
    			int mcX = (mouseX+coord.x)/TILE_SIZE;
    			int mcY = (mouseY+coord.y)/TILE_SIZE;
- 			if(itemon>1000) {
-	   			wall[mcY][mcX]=(itemon-1000);
-	   		} else if(itemon==1000) {
-	   			wall[mcY][mcX]=itemon-1000;
-	   		} else {
-	   			if(itemon==0) {
+   			/*if(holding==3) {
+	   			wall[mcY][mcX]=0;
+	   		} else if(holding==4) {
+	   			wall[mcY][mcX]=itemon;
+	   		} else if(holding==1) {
 	   				inventory[map[mcY][mcX]]++;
-	   			}
-	   			if(inventory[itemon]>0 || itemon==0) {
-	   				if(itemon!=0 && map[mcY][mcX]==nothing) {
-		   				//inventory[itemon]--;
-		   			}
-		   			if(map[mcY][mcX]==nothing || itemon==0) {
-		   				map[mcY][mcX]=itemon;
-		   			}
-		   		} else {
-		   			std::cout << "you do not have enough of item " << itemon << std::endl;
+	   				map[mcY][mcX]=0;
+	   		} else if(holding==2 && map[mcY][mcX]==nothing) {
+		   		map[mcY][mcX]=itemon;
+		   	}*/
+		   	if(erase) {
+		   		if(holding==1) {
+		   			map[mcY][mcX]=nothing;
+			   	} else if(holding==2) {
+		   			wall[mcY][mcX]=nothing;
+		   		}
+		   	} else {
+		   		if(holding==1 && map[mcY][mcX]==nothing) {
+		   			map[mcY][mcX]=itemon;
+		   		} else if(holding==2) {
+		   			wall[mcY][mcX]=itemon;
 		   		}
 		   	}
-		}
-		/*
-		for(int h=0; h<height; h++) {
-        	for(int w=0; w<width; w++) {
-        		if(map[h][w]==dirt || map[h][w]==grass) {
-        			if(map[h-1][w]==nothing || map[h-1][w]==flower || map[h-1][w]==wood || map[h-1][w]==post || map[h-1][w]==chickenegg) {
-        				map[h][w]=grass;
-        			} else {
-        				map[h][w]=dirt;
-        			}
-        		}
-        		if(map[h][w]==wood) {
-        			if(map[h+1][w]==nothing || map[h+1][w]==torch) {
-        				int j=1;
-        				for(int i=0; i<j; i++) {
-        					if(map[h-i][w]==wood) {
-        						j++;
-        						map[h-i][w]=nothing;
-        					}
-        				}
-        			}
-        		}
-        		if(map[h][w]==chickenegg) {
-		   			int randhatch = random() % 100;
-		   			if(randhatch==0 && mobvec.size() < 13) {
-		   				mobvec.push_back(new mobs(mobsimg, 50, 50, w*25, h*25, "chicken"));
-		   				map[h][w]=nothing;
-		   			}
-		   			if(map[h+1][w]==nothing) {
-		   				map[h][w]=nothing;
-		   				map[h+1][w]=chickenegg;
-		   			}
-        		}
-        	}
-        }
-		*/
+   		}
+        
         for(int i=0;i<mobvec.size();i++) {
 			mobvec[i]->showMob(screen, coord);
 			mobvec[i]->moveMob(map);
 		}
 		
-		eclip.x=itemon*25;
-		SDL_BlitSurface(blocks,&eclip,screen,&edest);
+		eclip.x=(itemon*25)-25;
+		if(fullscreen){
+			edest.x=mouseX;
+			edest.y=mouseY;
+		} else {
+			edest.x=edest.y=10;
+		}
+		if(holding==1) { SDL_BlitSurface(blocks,&eclip,screen,&edest);
+		} else if(holding==2) { SDL_BlitSurface(wallimg,&eclip,screen,&edest); }
 		
 		player1->showPlayer(screen);
 		SDL_GetMouseState(&mouseX,&mouseY);

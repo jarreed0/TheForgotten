@@ -12,7 +12,7 @@
 #define GAME_H
 
 class game {
-	SDL_Surface* screen,*background,*blocks,*playerimg,*loading,*wallimg,*bmenuimg,*mobsimg;
+	SDL_Surface* screen,*background,*blocks,*playerimg,*loading,*wallimg,*mobsimg;
 	SDL_Rect camera,coord;
 	SDL_Rect edest, eclip;
 	SDL_Surface* loadImage(const char* filename);
@@ -24,7 +24,8 @@ class game {
 	std::vector<std::vector<int> > map;
 	std::vector<std::vector<int> > wall;
 	int inventory[20];
-	int itemon;
+	int itemon,holding;
+	bool erase;
 	std::vector<mobs*> mobvec;
 	static const int SCREEN_WIDTH=640;
 	static const int SCREEN_HEIGHT=480;
