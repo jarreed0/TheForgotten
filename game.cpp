@@ -13,8 +13,8 @@ game::game() {
 	running=true;
 	player1=new player(playerimg);
 	srandom(time(NULL));
-	speed=6;
-	curspeed=6;
+	speed=10;
+	curspeed=10;
 	camera.x=camera.y=coord.x=coord.y=0;
 	camera.w=coord.w=SCREEN_WIDTH;
 	camera.h=coord.h=SCREEN_HEIGHT;
@@ -52,8 +52,8 @@ game::game() {
 	dir[0]=dir[1]=dir[2]=dir[3]=0;
 	gravity=6;
 	mouseDown=0;
-	width=500;
-	height=500;
+	//width=500;
+	//height=500;
 	itemon=1;
 	digging=0;
 	holding=1;
@@ -68,14 +68,6 @@ game::~game() {
 	SDL_FreeSurface(wallimg);
 	SDL_FreeSurface(mobsimg);
 	SDL_Quit();
-}
-
-void game::getIP(char* ip) {
-	if(ip == NULL) {
-		clientcnct=new client(ip);
-	} else {
-		clientcnct=new client("localhost");
-	}
 }
 
 SDL_Surface* game::loadImage(const char* filename) {
@@ -109,6 +101,7 @@ SDL_Event event;
                                         	//save();
                                 			//running=false;
                                 			return;
+                                	case SDLK_9: coord.x=-1200*25;
                                 	case SDLK_1: holding=1; break;
                                 	case SDLK_2: holding=2; break;
                                 	case SDLK_5: if(erase) {erase=0;} else {erase=1;} break;
@@ -174,6 +167,8 @@ void game::loadMap(const char* filename) {
         int width,height;
         in >> width;
         in >> height;
+        mapwidth=width;
+        mapheight=height;
         int current;
         for(int i=0;i<height;i++) {
                 std::vector<int> vec;
@@ -193,10 +188,10 @@ void game::loadMap(const char* filename) {
         }
         if(!in.eof()) {
         	int mapX, mapY;
-        	//in >> mapX;
-        	//in >> mapY;
-        	//coord.x = mapX;
-        	//coord.y = mapY;
+        	in >> mapX;
+        	in >> mapY;
+        	coord.x = mapX*25;
+        	coord.y = mapY*25;
         }
         in.close();
 }
@@ -244,6 +239,7 @@ void game::save() {
             }
 	        out << std::endl;
         }
+        out << coord.x/25 << " " << coord.y/25;
         out.close();
         sprintf(c,"%d",(int)time(0));
         strcat(c,".wall");
@@ -272,7 +268,7 @@ void game::showMap() {
 				SDL_Rect blockrect = {(map[i][j]-1)*TILE_SIZE,0,TILE_SIZE,TILE_SIZE};
 				SDL_Rect destrect = {j*TILE_SIZE-coord.x,i*TILE_SIZE-coord.y};
 				SDL_BlitSurface(blocks,&blockrect,screen,&destrect);
-				if(map[i][j]==water || map[i][j]==nothing || map[i][j]==flower || map[i][j]==wood || map[i][j]==torch || map[i][j]==post || map[i][j]==leaf || map[i][j]==workbench || map[i][j]==chickenegg || map[i][j]==cactus) {
+				if(map[i][j]==water || map[i][j]==nothing || map[i][j]==flower || map[i][j]==wood || map[i][j]==torch || map[i][j]==post || map[i][j]==leaf || map[i][j]==workbench || map[i][j]==chickenegg || map[i][j]==cactus || map[i][j]==table) {
 					test2rect.push_back(destrect);
 				} else {
 					testrect.push_back(destrect);
@@ -341,12 +337,19 @@ void game::setWall(const char* wall) {
 	}
 }
 
+void game::rendMap() {
+	generatem=new mapgen();
+	generatem->start();
+	map=generatem->map;
+	wall=generatem->wall;
+}
+
 void game::start() {
 	Uint32 start;
 	while(running) {
 		start=SDL_GetTicks();
 		handleEvents();
-		
+	
 		SDL_BlitSurface(background,&camera,screen,NULL);
 		
 		lastdir[0]=lastdir[1]=lastdir[2]=lastdir[3]=0; //left, right, up, down
@@ -383,16 +386,6 @@ void game::start() {
    		if(mouseDown) {
    			int mcX = (mouseX+coord.x)/TILE_SIZE;
    			int mcY = (mouseY+coord.y)/TILE_SIZE;
-   			/*if(holding==3) {
-	   			wall[mcY][mcX]=0;
-	   		} else if(holding==4) {
-	   			wall[mcY][mcX]=itemon;
-	   		} else if(holding==1) {
-	   				inventory[map[mcY][mcX]]++;
-	   				map[mcY][mcX]=0;
-	   		} else if(holding==2 && map[mcY][mcX]==nothing) {
-		   		map[mcY][mcX]=itemon;
-		   	}*/
 		   	if(erase) {
 		   		if(holding==1) {
 		   			map[mcY][mcX]=nothing;
@@ -416,13 +409,12 @@ void game::start() {
 		eclip.x=(itemon*25)-25;
 		if(fullscreen){
 			edest.x=mouseX;
-			edest.y=mouseY;
+			edest.y=mouseY-25;
 		} else {
 			edest.x=edest.y=10;
 		}
 		if(holding==1) { SDL_BlitSurface(blocks,&eclip,screen,&edest);
 		} else if(holding==2) { SDL_BlitSurface(wallimg,&eclip,screen,&edest); }
-		
 		player1->showPlayer(screen);
 		SDL_GetMouseState(&mouseX,&mouseY);
 		SDL_Flip(screen);

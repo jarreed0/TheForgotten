@@ -6,8 +6,8 @@
 #include <unistd.h>
 #include "player.h"
 #include "collision.h"
-#include "client.h"
 #include "mobs.h"
+#include "mapgen.h"
 #ifndef GAME_H
 #define GAME_H
 
@@ -36,8 +36,8 @@ class game {
 	void showMap();
 	void showWall();
 	void save();
-	client* clientcnct;
 	player* player1;
+	mapgen* generatem;
 	collision col;
 	int water,grass,rock,flower,dirt,nothing,copper,iron,wood,torch,table,stone,brick,leaf,cobble,post,chamber,workbench,plank,chickenegg,sand,cactus,snow;
 	int dirtwall, rockwall, stonewall, brickwall, woodwall;
@@ -46,8 +46,8 @@ class game {
 	bool newdir[4];
 	int gravity;
 	bool mouseDown;
-	int width;
-	int height;
+	int mapwidth;
+	int mapheight;
 	char* mapName;
 	bool digging;
 	public:
@@ -55,10 +55,10 @@ class game {
 	~game();
 	void setMap(const char* map);
 	void setWall(const char* wall);
+	void rendMap();
 	void start();
 	static const int TILE_SIZE = 25;
 	bool coldir[4];
-	void getIP(char* ip);
 };
 
 #endif

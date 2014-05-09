@@ -47,10 +47,10 @@ void mobs::showMob(SDL_Surface* screen, SDL_Rect coord) {
 }
 
 void mobs::moveMob(std::vector<std::vector<int> > map) {
-	if(map[(y/25)+1][x/25]==water || map[(y/25)+1][x/25]==nothing || map[(y/25)+1][x/25]==flower || map[(y/25)+1][x/25]==wood || map[(y/25)+1][x/25]==torch || map[(y/25)+1][x/25]==post || map[(y/25)+1][x/25]==leaf || map[(y/25)+1][x/25]==workbench || map[(y/25)+1][x/25]==chickenegg) { y=y+6;
+	if(map[(y/25)+1][x/25]==nothing || map[(y/25)+1][x/25]==flower || map[(y/25)+1][x/25]==wood || map[(y/25)+1][x/25]==torch || map[(y/25)+1][x/25]==post || map[(y/25)+1][x/25]==leaf || map[(y/25)+1][x/25]==workbench || map[(y/25)+1][x/25]==chickenegg) { y=y+6;
 	} else { y=y-6; }
 	for(int j=0; j<map[0].size(); j++) {
-		if(map[y/25][j]==water) {
+		if(map[y/25][j]==water || map[(y/25)-25][j]==water || map[(y/25)+25][j]==water) {
 			closestx=(j*25);
 			break;
 		}
