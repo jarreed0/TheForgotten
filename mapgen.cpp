@@ -289,6 +289,24 @@ void mapgen::render() {
 			if(biome == lake) {
 				map[spot][w]=water;
 				wall[spot][w]=sandwall;
+				int randboat = random() % 20;
+				if(randboat==0 && sloop>6) {
+					std::cout << "boat" << std::endl;
+					map[spot-5][w]=brick;
+					map[spot-6][w-1]=brick;
+					map[spot-5][w-1]=brick;
+					map[spot-4][w-1]=post;
+					map[spot-3][w-1]=post;
+					map[spot-2][w-1]=plank;
+					map[spot-1][w-2]=plank;
+					map[spot-1][w-3]=plank;
+					map[spot-1][w-4]=plank;
+					map[spot-2][w-5]=plank;
+					map[spot-3][w-5]=torch;
+					wall[spot-2][w-2]=woodwall;
+					wall[spot-2][w-3]=woodwall;
+					wall[spot-2][w-4]=woodwall;
+				}
 			}
 			if(biome == forest || biome==forest2) {
 				int randtree = random() % 10;
@@ -343,13 +361,37 @@ void mapgen::render() {
 					std::cout << "plant" << std::cout;
 				}
 			}
+			if(sloop>10 && biome==grasslands) {
+				int randbuild=random() % 2;
+				if(randbuild==0) {
+					for(int s=0; s<9; s++) {
+						map[spot-1][w-s]=stone;
+						map[spot-6][w-s]=stone;
+						wall[spot-1][w-s]=stonewall;
+						wall[spot-2][w-s]=stonewall;
+						wall[spot-3][w-s]=stonewall;
+						wall[spot-4][w-s]=stonewall;
+						wall[spot-5][w-s]=stonewall;
+						wall[spot-6][w-s]=stonewall;
+					}
+					map[spot-5][w]=stone;
+					map[spot-4][w]=stone;	
+					map[spot-5][w-8]=stone;
+					map[spot-4][w-8]=stone;
+					map[spot-5][w-1]=torch;
+					map[spot-5][w-7]=torch;
+					map[spot-2][w-3]=table;
+					std::cout << "building" << std::cout;	
+				}
+			}
+			
 			spot=hillheight+sky;
 			hloop++;
 		}
 		sloop++;
 		bloop++;
 	}	
-	for(int h=1; h<height; h++) {
+	for(int h=2; h<height; h++) {
 		for(int w=0; w<width; w++) {
 			if(map[h-1][w] == dirt) {
 				int randrock = random() & 10;
@@ -381,7 +423,7 @@ void mapgen::render() {
 					wall[h][w]=sandwall;
 				}
 			}
-			if(map[h-1][w] == rock || map[h-1][w] == copper || map[h-1][w] == rock || map[h-1][w] == iron || map[h-1][w] == brick || map[h-1][w] == stone) {
+			if(map[h-1][w] == rock) {
 				int randblock = random() % 1000;
 				if(randblock==1) {
 					map[h][w]=dirt;
@@ -401,6 +443,30 @@ void mapgen::render() {
 				} else {
 					map[h][w]=rock;
 					wall[h][w]=rockwall;
+				}
+			}
+			if(map[h-2][w] == rock) {
+				if(map[h-1][w] == copper || map[h-1][w] == rock || map[h-1][w] == iron || map[h-1][w] == brick || map[h-1][w] == stone) {
+					int randblock = random() % 1000;
+					if(randblock==1) {
+						map[h][w]=dirt;
+						wall[h][w]=dirtwall;
+					} else if(randblock==2) {
+						map[h][w]=iron;
+						wall[h][w]=rockwall;
+					} else if(randblock==3) {
+						map[h][w]=copper;
+						wall[h][w]=rockwall;
+					} else if(randblock==4) {
+						map[h][w]=stone;
+						wall[h][w]=stonewall;
+					} else if(randblock==5) {
+						map[h][w]=brick;
+						wall[h][w]=brickwall;
+					} else {
+						map[h][w]=rock;
+						wall[h][w]=rockwall;
+					}
 				}
 			}
 			if(map[h-1][w] == sand) {
