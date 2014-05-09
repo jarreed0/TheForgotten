@@ -9,7 +9,7 @@
 class mapgen {
 	int height, width;
 	int water,grass,rock,flower,dirt,nothing,protect,copper,iron,wood,torch,table,stone,brick,leaf,cobble,post,chamber,workbench,plank,chickenegg,sand,cactus,snow;
-	int dirtwall, rockwall, stonewall, brickwall, woodwall;
+	int dirtwall, rockwall, stonewall, brickwall, woodwall, sandwall, snowwall;
 	int chambers;
 	int sky;
 	int biome;

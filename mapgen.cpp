@@ -32,6 +32,8 @@ mapgen::mapgen() {
 	stonewall=3;
 	brickwall=4;
 	woodwall=5;
+	sandwall=6;
+	snowwall=7;
 	chambers=0;
 	sky = 40;
 	srandom(time(NULL));
@@ -138,7 +140,7 @@ void mapgen::render() {
 			}
 			if(biome == desert || biome == sandhills) {
 				map[spot+1][w]=sand;
-				wall[spot+1][w]=dirtwall;
+				wall[spot+1][w]=sandwall;
 			}
 			if(biome == mountians) {
 				map[spot+1][w]=rock;
@@ -146,11 +148,11 @@ void mapgen::render() {
 			}
 			if(biome == tundra) {
 				map[spot+1][w]=snow;
-				wall[spot+1][w]=rockwall;
+				wall[spot+1][w]=snowwall;
 			}
 			if(biome == lake) {
 				map[spot][w]=water;
-				wall[spot][w]=dirtwall;
+				wall[spot][w]=sandwall;
 			}
 			if(biome == forest|| biome==forest2) {
 				int randtree = random() % 10;
@@ -206,7 +208,7 @@ void mapgen::render() {
 			}
 			if(biome == desert || biome == sandhills) {
 				map[spot-1][w]=sand;
-				wall[spot-1][w]=dirtwall;
+				wall[spot-1][w]=sandwall;
 			}
 			if(biome == mountians) {
 				map[spot-1][w]=rock;
@@ -214,11 +216,11 @@ void mapgen::render() {
 			}
 			if(biome == tundra) {
 				map[spot-1][w]=snow;
-				wall[spot-1][w]=rockwall;
+				wall[spot-1][w]=snowwall;
 			}
 			if(biome == lake) {
 				map[spot][w]=water;
-				wall[spot][w]=dirtwall;
+				wall[spot][w]=sandwall;
 			}
 			if(biome == forest || biome==forest2) {
 				int randtree = random() % 10;
@@ -274,7 +276,7 @@ void mapgen::render() {
 			}
 			if(biome == desert || biome == sandhills) {
 				map[spot][w]=sand;
-				wall[spot][w]=dirtwall;
+				wall[spot][w]=sandwall;
 			}
 			if(biome == mountians) {
 				map[spot][w]=rock;
@@ -282,11 +284,11 @@ void mapgen::render() {
 			}
 			if(biome == tundra) {
 				map[spot][w]=snow;
-				wall[spot][w]=rockwall;
+				wall[spot][w]=snowwall;
 			}
 			if(biome == lake) {
 				map[spot][w]=water;
-				wall[spot][w]=dirtwall;
+				wall[spot][w]=sandwall;
 			}
 			if(biome == forest || biome==forest2) {
 				int randtree = random() % 10;
@@ -366,17 +368,17 @@ void mapgen::render() {
 					wall[h][w]=rockwall;
 				} else {
 					map[h][w]=snow;
-					wall[h][w]=rockwall;
+					wall[h][w]=snowwall;
 				}
 			}
 			if(map[h-1][w] == water) {
 				int randrock = random() & 10;
 				if(h>((20+sky)-randrock)) {
 					map[h][w]=sand;
-					wall[h][w]=dirtwall;
+					wall[h][w]=sandwall;
 				} else {
 					map[h][w]=water;
-					wall[h][w]=dirtwall;
+					wall[h][w]=sandwall;
 				}
 			}
 			if(map[h-1][w] == rock || map[h-1][w] == copper || map[h-1][w] == rock || map[h-1][w] == iron || map[h-1][w] == brick || map[h-1][w] == stone) {
@@ -408,7 +410,7 @@ void mapgen::render() {
 					wall[h][w]=rockwall;
 				} else {
 					map[h][w]=sand;
-					wall[h][w]=dirtwall;
+					wall[h][w]=sandwall;
 				}
 			}
 		}

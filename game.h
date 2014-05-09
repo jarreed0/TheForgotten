@@ -40,7 +40,7 @@ class game {
 	mapgen* generatem;
 	collision col;
 	int water,grass,rock,flower,dirt,nothing,copper,iron,wood,torch,table,stone,brick,leaf,cobble,post,chamber,workbench,plank,chickenegg,sand,cactus,snow;
-	int dirtwall, rockwall, stonewall, brickwall, woodwall;
+	int dirtwall, rockwall, stonewall, brickwall, woodwall, sandwall, snowwall;
 	bool dir[4];
 	bool lastdir[4];
 	bool newdir[4];

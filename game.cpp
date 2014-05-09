@@ -49,6 +49,8 @@ game::game() {
 	stonewall=3;
 	brickwall=4;
 	woodwall=5;
+	sandwall=6;
+	snowwall=7;
 	dir[0]=dir[1]=dir[2]=dir[3]=0;
 	gravity=6;
 	mouseDown=0;
