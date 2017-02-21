@@ -1,1 +1,15 @@
-test
+Old Version of the Game
+The Game is Currently being remade in the Arch Game Engine
+
+Dependicies:
+sudo apt-get install libsdl1.2-dev libsdl1.2debian libsdl-image1.2  libsdl-image1.2-dev
+
+Compile:
+g++ *.cpp -lSDL -lSDL_image
+
+Run:
+./a.out
+
+Run with specified map:
+./a.out MAPNAME
+
